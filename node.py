@@ -7,9 +7,9 @@ import socket
 import threading
 import time
 
-from   constants                import HEARTBEAT_TIME, logger
-from   utils                    import (add_node_to_file, load_config,
-                                        remove_node_from_file)
+from constants import HEARTBEAT_TIME, logger
+from utils import (add_node_to_file, load_config,
+                   remove_node_from_file)
 
 
 class Node:
@@ -106,14 +106,8 @@ class Node:
         return response
 
     # ==========================
-    # FAILURE HANDLE
+    # ADDITION/FAILURE HANDLE
     # ==========================
-    # def _add_new_node_to_file(self, new_node_id, new_node_host, new_node_port):
-    #     with open(self.config, "r+", encoding='utf-8') as file:
-    #         lines = file.readlines()
-    #         if not any(f"{new_node_id} {new_node_host} {new_node_port}\n" in line for line in lines):
-    #             file.write(f"{new_node_id} {new_node_host} {new_node_port}\n")
-
     def _handle_new_node(self, new_node_id, new_node_host, new_node_port):
         self.nodes[new_node_id] = (new_node_host, int(new_node_port))
         add_node_to_file(self.config, new_node_id,
@@ -137,16 +131,6 @@ class Node:
         remove_node_from_file(self.config, node_id,
                               self.nodes[node_id][0], self.nodes[node_id][1])
         self.nodes.pop(node_id)
-
-    # def _remove_node_from_file(self, node_id):
-    #     node_entry = f"{node_id} {self.nodes[node_id][0]} {self.nodes[node_id][1]}"
-    #     with open(self.config, "r+", encoding='utf-8') as file:
-    #         lines = file.readlines()
-    #         file.seek(0)
-    #         for line in lines:
-    #             if node_entry not in line.strip():
-    #                 file.write(line)
-    #         file.truncate()
 
     # =========================
     # CRITICAL SECTION
@@ -193,6 +177,47 @@ class Node:
             for node_id in self.deferred_list:
                 self.send_message(
                     node_id, f"CSREPLY~{self.node_id}~{self.timestamp}")
+
+    # ===============================
+    # MESSAGING
+    # ===============================
+
+    def send_message(self, node_id: int, message: str):
+        """
+        Method to handle message sending for a client
+        """
+        target_host, target_port = self.nodes[node_id]
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+            try:
+                client_socket.connect((target_host, target_port))
+                self.timestamp += 1
+                client_socket.sendall(
+                    f"{message}~{self.timestamp}".encode("utf-8"))
+                response = client_socket.recv(1024).decode("utf-8")
+                response = response.split('~')
+                if response[0] not in ['DEFERRED', 'GOTIT']:
+                    print(
+                        f"Received response: {response[0]} from {response[1]} at Timestamp: {response[-1]}")
+                if response[0] == "CSREPLY":
+                    self.waiting_for_reply.discard(int(response[1]))
+                    self.timestamp = max(self.timestamp, int(response[-1])) + 1
+                    self._start_cs_thread()
+                elif response[0] == "DEFERRED":
+                    print(
+                        f"Deferred entry request from {response[1]}")
+            except Exception:
+                print(
+                    f'Could not connect to {target_host} and {target_port}')
+
+    def broadcast(self, message: str):
+        """
+        Method to handle broadcasting message to all the clients in the system
+        """
+        print(f"Sending broadcast message to {list(self.nodes.keys())}")
+        for node_id in self.nodes:
+            if node_id == self.node_id:
+                continue
+            self.send_message(node_id, message)
 
     # =======================
     # HEARTBEAT
@@ -242,47 +267,6 @@ class Node:
         logger.debug(
             "Heartbeat received from %s at %s:%s",
             node_id, self.nodes[node_id][0], self.nodes[node_id][1])
-
-    # ===============================
-    # Utility
-    # ===============================
-
-    def send_message(self, node_id: int, message: str):
-        """
-        Method to handle message sending for a client
-        """
-        target_host, target_port = self.nodes[node_id]
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
-            try:
-                client_socket.connect((target_host, target_port))
-                self.timestamp += 1
-                client_socket.sendall(
-                    f"{message}~{self.timestamp}".encode("utf-8"))
-                response = client_socket.recv(1024).decode("utf-8")
-                response = response.split('~')
-                if response[0] not in ['DEFERRED', 'GOTIT']:
-                    print(
-                        f"Received response: {response[0]} from {response[1]} at Timestamp: {response[-1]}")
-                if response[0] == "CSREPLY":
-                    self.waiting_for_reply.discard(int(response[1]))
-                    self.timestamp = max(self.timestamp, int(response[-1])) + 1
-                    self._start_cs_thread()
-                elif response[0] == "DEFERRED":
-                    print(
-                        f"Deferred entry request from {response[1]}")
-            except Exception:
-                print(
-                    f'Could not connect to {target_host} and {target_port}')
-
-    def broadcast(self, message: str):
-        """
-        Method to handle broadcasting message to all the clients in the system
-        """
-        print(f"Sending broadcast message to {list(self.nodes.keys())}")
-        for node_id in self.nodes:
-            if node_id == self.node_id:
-                continue
-            self.send_message(node_id, message)
 
 
 def main():
