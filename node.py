@@ -2,15 +2,14 @@
 Node.py
 """
 
+import logging
 import socket
 import threading
 import time
-import logging
 
-from utils import load_config
-
-HEARTBEAT_TIME = 5
-logger = logging.getLogger(__name__)
+from   constants                import HEARTBEAT_TIME, logger
+from   utils                    import (add_node_to_file, load_config,
+                                        remove_node_from_file)
 
 
 class Node:
@@ -109,15 +108,16 @@ class Node:
     # ==========================
     # FAILURE HANDLE
     # ==========================
-    def _add_new_node_to_file(self, new_node_id, new_node_host, new_node_port):
-        with open(self.config, "r+", encoding='utf-8') as file:
-            lines = file.readlines()
-            if not any(f"{new_node_id} {new_node_host} {new_node_port}\n" in line for line in lines):
-                file.write(f"{new_node_id} {new_node_host} {new_node_port}\n")
+    # def _add_new_node_to_file(self, new_node_id, new_node_host, new_node_port):
+    #     with open(self.config, "r+", encoding='utf-8') as file:
+    #         lines = file.readlines()
+    #         if not any(f"{new_node_id} {new_node_host} {new_node_port}\n" in line for line in lines):
+    #             file.write(f"{new_node_id} {new_node_host} {new_node_port}\n")
 
     def _handle_new_node(self, new_node_id, new_node_host, new_node_port):
         self.nodes[new_node_id] = (new_node_host, int(new_node_port))
-        self._add_new_node_to_file(new_node_id, new_node_host, new_node_port)
+        add_node_to_file(self.config, new_node_id,
+                         new_node_host, new_node_port)
         print(
             f"New node added: Node ID {new_node_id} - {new_node_host}:{new_node_port}")
 
@@ -134,18 +134,19 @@ class Node:
         if node_id in self.heartbeat_sockets:
             heartbeat_socket = self.heartbeat_sockets.pop(node_id)
             heartbeat_socket.close()
-        self._remove_node_from_file(node_id)
+        remove_node_from_file(self.config, node_id,
+                              self.nodes[node_id][0], self.nodes[node_id][1])
         self.nodes.pop(node_id)
 
-    def _remove_node_from_file(self, node_id):
-        node_entry = f"{node_id} {self.nodes[node_id][0]} {self.nodes[node_id][1]}"
-        with open(self.config, "r+", encoding='utf-8') as file:
-            lines = file.readlines()
-            file.seek(0)
-            for line in lines:
-                if node_entry not in line.strip():
-                    file.write(line)
-            file.truncate()
+    # def _remove_node_from_file(self, node_id):
+    #     node_entry = f"{node_id} {self.nodes[node_id][0]} {self.nodes[node_id][1]}"
+    #     with open(self.config, "r+", encoding='utf-8') as file:
+    #         lines = file.readlines()
+    #         file.seek(0)
+    #         for line in lines:
+    #             if node_entry not in line.strip():
+    #                 file.write(line)
+    #         file.truncate()
 
     # =========================
     # CRITICAL SECTION
