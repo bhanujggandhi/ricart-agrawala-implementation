@@ -3,7 +3,8 @@ Runner Script
 """
 
 import logging
-from   node                     import Node
+from node import Node
+from colorama import Fore
 
 
 def main():
@@ -23,11 +24,11 @@ def main():
     node.broadcast(f"NEW_NODE~{node_id}~{node.host}~{node.port}")
 
     while True:
-        print("\n1. Send message to specific node")
-        print("2. Broadcast message to all nodes")
-        print("3. Print Data Structures")
-        print("4. Enter Critical Section")
-        print("5. Exit")
+        print(Fore.LIGHTBLUE_EX + "\n1. Send message to specific node")
+        print(Fore.LIGHTBLUE_EX + "2. Broadcast message to all nodes")
+        print(Fore.LIGHTBLUE_EX + "3. Print Data Structures")
+        print(Fore.LIGHTBLUE_EX + "4. Enter Critical Section")
+        print(Fore.LIGHTBLUE_EX + "5. Exit")
         choice = input("Enter your choice: ")
 
         if choice == "1":
