@@ -49,6 +49,10 @@ Below is the sample config file
 
 It is hard to estimate how much time a critical section will take. To add randomness, everytime a critical section is requested a random number between `CS_TIME_RANGE_START` and `CS_TIME_RANGE_END`. These parameters can be tweaked in `constants.py` file.
 
+### Heartbeat
+
+To handle the node failure, every node sends every other node a heartbeat message at a regular inerval. The interval can be tweaked by changeing the value of `HEARTBEAT_TIME` in `constants.py`.
+
 ## Running the project
 
 1. Install the required packages
