@@ -24,8 +24,8 @@ def main():
     node.broadcast(f"NEW_NODE~{node_id}~{node.host}~{node.port}")
 
     while True:
-        print(Fore.LIGHTBLUE_EX + "1. Print Data Structures")
-        print(Fore.LIGHTBLUE_EX + "2. Enter Critical Section")
+        print(Fore.LIGHTBLUE_EX + "1. Enter Critical Section")
+        print(Fore.LIGHTBLUE_EX + "2. Print Data Structures")
         print(Fore.LIGHTBLUE_EX + "3. Exit")
         choice = input("Enter your choice: ")
 
