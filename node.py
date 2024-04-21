@@ -6,9 +6,9 @@ import socket
 import threading
 import time
 
-from constants import HEARTBEAT_TIME, logger
-from utils import (add_node_to_file, load_config,
-                   remove_node_from_file)
+from   constants                import HEARTBEAT_TIME, logger
+from   utils                    import (add_node_to_file, load_config,
+                                        remove_node_from_file)
 
 
 class Node:
@@ -20,8 +20,7 @@ class Node:
         self.server_thread = None
         self.node_id = node_id
         self.config = f"config{node_id}.txt"
-        self.nodes, self.host, self.port = load_config(
-            self.config, self.node_id)
+        self.nodes, self.host, self.port = load_config(self.config, self.node_id)
         self._initiate_heartbeat()
         self.heartbeat_sockets = {}
         self.timestamp = 0
@@ -60,11 +59,9 @@ class Node:
                     message = data.decode("utf-8")
                     message = message.split("~")
                     if message[0] == "HEARTBEAT":
-                        logger.info(
-                            "Received HEARTBEAT from node_id %s", message[1])
+                        logger.info("Received HEARTBEAT from node_id %s", message[1])
                     else:
-                        self.timestamp = max(
-                            self.timestamp, int(message[-1])) + 1
+                        self.timestamp = max(self.timestamp, int(message[-1])) + 1
                         # print(
                         #     f"Received message: {message[0]} from {message[1]}")
                     response = self._process_message(message)
@@ -84,8 +81,7 @@ class Node:
             response = f"HEARTBEAT_REPLY~{self.node_id}"
         elif message[0] == "NEW_NODE":
             new_node_id, new_node_host, new_node_port, _ = message[1:]
-            self._handle_new_node(
-                int(new_node_id), new_node_host, int(new_node_port))
+            self._handle_new_node(int(new_node_id), new_node_host, int(new_node_port))
             response = f"New node added successfully.~{self.timestamp}"
         elif message[0] == "CSENTRY":
             if self.executing_cs or (
@@ -112,8 +108,7 @@ class Node:
     # ==========================
     def _handle_new_node(self, new_node_id, new_node_host, new_node_port):
         self.nodes[new_node_id] = (new_node_host, int(new_node_port))
-        add_node_to_file(self.config, new_node_id,
-                         new_node_host, new_node_port)
+        add_node_to_file(self.config, new_node_id, new_node_host, new_node_port)
         print(
             f"New node added: Node ID {new_node_id} - {new_node_host}:{new_node_port}"
         )
@@ -179,8 +174,7 @@ class Node:
             print(f"Sending replies to deferred nodes {self.deferred_list}")
             time.sleep(0.7)
             for node_id in self.deferred_list:
-                self.send_message(
-                    node_id, f"CSREPLY~{self.node_id}~{self.timestamp}")
+                self.send_message(node_id, f"CSREPLY~{self.node_id}~{self.timestamp}")
 
     # ===============================
     # MESSAGING
@@ -195,8 +189,7 @@ class Node:
             try:
                 client_socket.connect((target_host, target_port))
                 self.timestamp += 1
-                client_socket.sendall(
-                    f"{message}~{self.timestamp}".encode("utf-8"))
+                client_socket.sendall(f"{message}~{self.timestamp}".encode("utf-8"))
                 response = client_socket.recv(1024).decode("utf-8")
                 response = response.split("~")
                 if response[0] not in ["DEFERRED", "GOTIT"]:
@@ -258,8 +251,7 @@ class Node:
         if node_id in self.heartbeat_sockets:
             heartbeat_socket = self.heartbeat_sockets[node_id]
         else:
-            heartbeat_socket = socket.socket(
-                socket.AF_INET, socket.SOCK_STREAM)
+            heartbeat_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             target_host, target_port = self.nodes[node_id]
             heartbeat_socket.connect((target_host, target_port))
             self.heartbeat_sockets[node_id] = heartbeat_socket

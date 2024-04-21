@@ -3,7 +3,7 @@ Runner Script
 """
 
 import logging
-from node import Node
+from   node                     import Node
 
 
 def main():
@@ -13,8 +13,9 @@ def main():
     node_id = int(input("Enter the node id: "))
     # config_path = input("Enter the config file path: ")
 
-    logging.basicConfig(filename=f'log_{node_id}.log',
-                        encoding='utf-8', level=logging.DEBUG)
+    logging.basicConfig(
+        filename=f"log_{node_id}.log", encoding="utf-8", level=logging.DEBUG
+    )
 
     node = Node(node_id)
     node.start_server()

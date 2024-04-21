@@ -10,7 +10,7 @@ def load_config(config, current_node_id):
     <NODEID HOST PORT>
     """
     nodes = {}
-    with open(config, "r", encoding='utf-8') as file:
+    with open(config, "r", encoding="utf-8") as file:
         for line in file:
             node_info = line.strip().split()
             if len(node_info) != 3:
@@ -27,9 +27,11 @@ def add_node_to_file(config, new_node_id, new_node_host, new_node_port):
     """
     Method to add new node to the config file
     """
-    with open(config, "r+", encoding='utf-8') as file:
+    with open(config, "r+", encoding="utf-8") as file:
         lines = file.readlines()
-        if not any(f"{new_node_id} {new_node_host} {new_node_port}\n" in line for line in lines):
+        if not any(
+            f"{new_node_id} {new_node_host} {new_node_port}\n" in line for line in lines
+        ):
             file.write(f"{new_node_id} {new_node_host} {new_node_port}\n")
 
 
@@ -38,7 +40,7 @@ def remove_node_from_file(config, node_id, ip, port):
     Remove the node entry from the file
     """
     node_entry = f"{node_id} {ip} {port}"
-    with open(config, "r+", encoding='utf-8') as file:
+    with open(config, "r+", encoding="utf-8") as file:
         lines = file.readlines()
         file.seek(0)
         for line in lines:
