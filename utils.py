@@ -5,9 +5,11 @@ Utils.py
 
 def load_config(config, current_node_id):
     """
-    Loads config file
+    Loads config file. Format of the config file is defined below
+    ```
     FORMAT:
-    <NODEID HOST PORT>
+    NODEID HOST PORT
+    ```
     """
     nodes = {}
     with open(config, "r", encoding="utf-8") as file:

@@ -2,9 +2,10 @@
 Runner Script
 """
 
-from   colorama                 import Fore
+from colorama import Fore
 import logging
-from   node                     import Node
+from node import Node
+
 
 def main():
     """
@@ -23,21 +24,14 @@ def main():
     node.broadcast(f"NEW_NODE~{node_id}~{node.host}~{node.port}")
 
     while True:
-        print(Fore.LIGHTBLUE_EX + "\n1. Send message to specific node")
-        print(Fore.LIGHTBLUE_EX + "2. Broadcast message to all nodes")
-        print(Fore.LIGHTBLUE_EX + "3. Print Data Structures")
-        print(Fore.LIGHTBLUE_EX + "4. Enter Critical Section")
-        print(Fore.LIGHTBLUE_EX + "5. Exit")
+        print(Fore.LIGHTBLUE_EX + "1. Print Data Structures")
+        print(Fore.LIGHTBLUE_EX + "2. Enter Critical Section")
+        print(Fore.LIGHTBLUE_EX + "3. Exit")
         choice = input("Enter your choice: ")
 
         if choice == "1":
-            node_id = input("Enter node id: ")
-            message = input("Enter message to send: ")
-            node.send_message(int(node_id), message)
+            node.enter_cs()
         elif choice == "2":
-            message = input("Enter message to broadcast: ")
-            node.broadcast(message)
-        elif choice == "3":
             print(f"Node ID: {node.node_id}")
             print(f"Timestamp: {node.timestamp}")
             # print(f"Heartbeat Dict: {node.heartbeat_sockets}")
@@ -46,12 +40,10 @@ def main():
             print(f"Request TS: {node.request_ts}")
             print(f"Deferred List: {node.deferred_list}")
             print(f"Waiting for Reply: {node.waiting_for_reply}")
-        elif choice == "4":
-            node.enter_cs()
-        elif choice == "5":
+        elif choice == "3":
             break
         else:
-            print("Invalid choice. Please enter 1, 2, 3, 4, or 5.")
+            print("Invalid choice. Please enter 1, 2, or 3.")
 
 
 if __name__ == "__main__":
