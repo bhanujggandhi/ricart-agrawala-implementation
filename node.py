@@ -46,8 +46,9 @@ class Node:
             while True:
                 client_socket, client_addr = server_socket.accept()
                 # print(f"Connection from {client_addr}")
-                threading.Thread(target=self._handle_client,
-                                 args=(client_socket,)).start()
+                threading.Thread(
+                    target=self._handle_client, args=(client_socket,)
+                ).start()
 
     def _handle_client(self, client_socket: socket.socket):
         with client_socket:
@@ -57,7 +58,7 @@ class Node:
                     if not data:
                         break
                     message = data.decode("utf-8")
-                    message = message.split('~')
+                    message = message.split("~")
                     if message[0] == "HEARTBEAT":
                         logger.info(
                             "Received HEARTBEAT from node_id %s", message[1])
@@ -80,14 +81,16 @@ class Node:
         if message[0] == "HEARTBEAT":
             node_id = message[1]
             self._handle_heartbeat(int(node_id))
-            response = f'HEARTBEAT_REPLY~{self.node_id}'
+            response = f"HEARTBEAT_REPLY~{self.node_id}"
         elif message[0] == "NEW_NODE":
             new_node_id, new_node_host, new_node_port, _ = message[1:]
             self._handle_new_node(
                 int(new_node_id), new_node_host, int(new_node_port))
             response = f"New node added successfully.~{self.timestamp}"
         elif message[0] == "CSENTRY":
-            if self.executing_cs or (self.interested_cs and self.request_ts < int(message[-1])):
+            if self.executing_cs or (
+                self.interested_cs and self.request_ts < int(message[-1])
+            ):
                 self.deferred_list.append(int(message[1]))
                 response = f"DEFERRED~{self.node_id}~{self.timestamp}"
             else:
@@ -112,7 +115,8 @@ class Node:
         add_node_to_file(self.config, new_node_id,
                          new_node_host, new_node_port)
         print(
-            f"New node added: Node ID {new_node_id} - {new_node_host}:{new_node_port}")
+            f"New node added: Node ID {new_node_id} - {new_node_host}:{new_node_port}"
+        )
 
     def remove_node(self, node_id):
         """
@@ -127,8 +131,9 @@ class Node:
         if node_id in self.heartbeat_sockets:
             heartbeat_socket = self.heartbeat_sockets.pop(node_id)
             heartbeat_socket.close()
-        remove_node_from_file(self.config, node_id,
-                              self.nodes[node_id][0], self.nodes[node_id][1])
+        remove_node_from_file(
+            self.config, node_id, self.nodes[node_id][0], self.nodes[node_id][1]
+        )
         self.nodes.pop(node_id)
 
     # =========================
@@ -193,20 +198,20 @@ class Node:
                 client_socket.sendall(
                     f"{message}~{self.timestamp}".encode("utf-8"))
                 response = client_socket.recv(1024).decode("utf-8")
-                response = response.split('~')
-                if response[0] not in ['DEFERRED', 'GOTIT']:
+                response = response.split("~")
+                if response[0] not in ["DEFERRED", "GOTIT"]:
                     print(
-                        f"Received response: {response[0]} from {response[1]} at Timestamp: {response[-1]}")
+                        f"Received response: {response[0]} from {response[1]}"
+                        f" at Timestamp: {response[-1]}"
+                    )
                 if response[0] == "CSREPLY":
                     self.waiting_for_reply.discard(int(response[1]))
                     self.timestamp = max(self.timestamp, int(response[-1])) + 1
                     self._start_cs_thread()
                 elif response[0] == "DEFERRED":
-                    print(
-                        f"Deferred entry request from {response[1]}")
+                    print(f"Deferred entry request from {response[1]}")
             except Exception:
-                print(
-                    f'Could not connect to {target_host} and {target_port}')
+                print(f"Could not connect to {target_host} and {target_port}")
 
     def broadcast(self, message: str):
         """
@@ -229,7 +234,7 @@ class Node:
     def _send_heartbeat(self):
         while True:
             time.sleep(HEARTBEAT_TIME)
-            with open(self.config, "r", encoding='utf-8') as file:
+            with open(self.config, "r", encoding="utf-8") as file:
                 for line in file:
                     node_info = line.strip().split()
                     if len(node_info) != 3:
@@ -241,7 +246,8 @@ class Node:
                     except Exception as e:
                         print(
                             f"Error sending heartbeat to {node_info[0]} at"
-                            f" {node_info[1]} :{node_info[2]}: {e}")
+                            f" {node_info[1]} :{node_info[2]}: {e}"
+                        )
 
                         self.remove_node(node_info[0])
 
@@ -257,12 +263,14 @@ class Node:
             target_host, target_port = self.nodes[node_id]
             heartbeat_socket.connect((target_host, target_port))
             self.heartbeat_sockets[node_id] = heartbeat_socket
-        heartbeat_socket.sendall(
-            f"HEARTBEAT~{self.node_id}".encode("utf-8"))
+        heartbeat_socket.sendall(f"HEARTBEAT~{self.node_id}".encode("utf-8"))
 
     def _handle_heartbeat(self, node_id):
         # Handle heartbeat from sender node
 
         logger.debug(
             "Heartbeat received from %s at %s:%s",
-            node_id, self.nodes[node_id][0], self.nodes[node_id][1])
+            node_id,
+            self.nodes[node_id][0],
+            self.nodes[node_id][1],
+        )
