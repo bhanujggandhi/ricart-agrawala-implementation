@@ -2,15 +2,13 @@
 Node.py
 """
 
+from   colorama                 import Fore, Style
+from   constants                import HEARTBEAT_TIME, logger
 import socket
 import threading
 import time
-
-from constants import HEARTBEAT_TIME, logger
-from utils import (add_node_to_file, load_config,
-                   remove_node_from_file)
-from colorama import Fore, Style
-
+from   utils                    import (add_node_to_file, load_config,
+                                        remove_node_from_file)
 
 class Node:
     """

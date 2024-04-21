@@ -2,10 +2,9 @@
 Runner Script
 """
 
+from   colorama                 import Fore
 import logging
-from node import Node
-from colorama import Fore
-
+from   node                     import Node
 
 def main():
     """
