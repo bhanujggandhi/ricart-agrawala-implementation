@@ -1,6 +1,6 @@
 # Ricarta Agrawala Algorithm Implementation
 
-| **Team No.**         | 42             |
+| **Team No.**         | 44             |
 | -------------------- | -------------- |
 | Bhanuj Gandhi        | **2022201068** |
 | Avishek Kumar Sharma | **2022202024** |
