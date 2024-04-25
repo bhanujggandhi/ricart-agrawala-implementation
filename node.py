@@ -2,15 +2,14 @@
 Node.py
 """
 
-from   colorama                 import Fore, Style
-from   constants                import (CS_TIME_RANGE_END, CS_TIME_RANGE_START,
-                                        HEARTBEAT_TIME, logger)
+from colorama import Fore, Style
+from constants import CS_TIME_RANGE_END, CS_TIME_RANGE_START, HEARTBEAT_TIME, logger
 import random
 import socket
 import threading
 import time
-from   utils                    import (add_node_to_file, load_config,
-                                        remove_node_from_file)
+from utils import add_node_to_file, load_config, remove_node_from_file
+
 
 class Node:
     """
