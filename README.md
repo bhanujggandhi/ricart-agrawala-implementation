@@ -1,10 +1,5 @@
 # Ricarta Agrawala Algorithm Implementation
 
-| **Team No.**         | 44             |
-| -------------------- | -------------- |
-| Bhanuj Gandhi        | **2022201068** |
-| Avishek Kumar Sharma | **2022202024** |
-
 Python Implementation of Ricarata Agrawala Algorithm for mututal exclusion in a distributed system.
 
 Reference Study: [Link](https://www.cs.ucf.edu/courses/cop6614/fall2005/Ricart-Agrawala.pdf)
